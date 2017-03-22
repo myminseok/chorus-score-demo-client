@@ -1,0 +1,7 @@
+---
+applications:
+- name: score-demo-client
+  memory: 512M
+  instances: 1
+  path: ./target/demo-0.0.1-SNAPSHOT.jar
+  

@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+      <script type="text/javascript">
+
+
+         function postTrade(){
+
+            var url = "http://"+document.getElementById("tradeUrl").value;
+            var data = document.getElementById("tradeData").value;
+            post(url,data, "tradeResult");
+         }
+
+         function postPrice(){
+
+            var url = "http://"+document.getElementById("priceUrl").value;
+            var data = document.getElementById("priceData").value;
+            post(url,data, "priceResult");
+         }
+
+         function post(url, data, resultElementId){
+
+            $.ajax({
+                url : url,
+                type: "POST",
+                data : data,
+                contentType: 'application/json',
+                accept: 'application/json',
+                success: function(data, textStatus, jqXHR)
+                {
+                  document.getElementById(resultElementId).innerHTML = textStatus;
+                },
+                error: function (jqXHR, textStatus, errorThrown)
+                {
+                  document.getElementById(resultElementId).innerHTML = textStatus;
+                }
+            });
+
+         }
+
+         function doWebSocket()
+         {
+            if ("WebSocket" in window) //"WebSocket is supported by your Browser!
+            {
+       
+               var url = document.getElementById("websocketUrl").value;
+               url= "wss://" + url + "/ws";
+               var ws = new WebSocket(url);
+
+               ws.onopen = function()
+               {
+                  //ws.send("Message to send");
+                  document.getElementById("connectionStatus").innerHTML = "WebSocket is connected";
+                 
+               };
+               ws.onmessage = function (evt) 
+               { 
+                  var received_msg = evt.data;
+                  document.getElementById("message").innerHTML = received_msg;
+               };
+               ws.onclose = function()
+               { 
+                  document.getElementById("connectionStatus").innerHTML = "WebSocket is closed";
+               };
+               ws.onerror = function(evt){
+                      document.getElementById("message").innerHTML = "error, check url";
+               };
+            }
+            else
+            {
+               // The browser doesn't support WebSocket
+               document.getElementById("message").innerHTML="WebSocket NOT supported by your Browser!";
+            }
+         }
+
+         window.onerror=function(msg, url, linenumber){
+            document.getElementById("message").innerHTML=msg;
+            
+         } 
+
+      </script>
+		
+   </head>
+   <body >
+
+	  <h1>chorus Scoring engine on PCF demo</h1>
+      Output websocket url <font size="-1"> ex) wss:// [output endpoint location]/ws </font> <br/>
+      wss://<input id="websocketUrl" size="80" value="endpoint-acbacc4b-ff4d-4ace-9741-f19e03b810b1.apps.pcfdemo.net"></input>/ws
+      <button id="connect" onclick="javascript:doWebSocket()">connect</button>  <text id="connectionStatus"></text>
+      <br/>
+      <br/>
+      Received Message: <font color='blue'><text id="message"></text></font>
+      
+      <br/>
+      <br/>
+      Price endpoint 
+      <input id="priceUrl" size="80" value="endpoint-559cb66b-d634-426c-8ae9-0b0716cc33bc.apps.pcfdemo.net"></input><br/>
+      data: <textarea id="priceData" rows="2" cols="80">{"new_price": 100.0} </textarea>
+      <button id="post" onclick="javascript:postPrice()">POST</button>
+      message: <text id="priceResult"></text>
+      <br/>
+      
+      Trade endpoint <input id="tradeUrl" size="80" value="endpoint-2a55d75f-d639-4602-a71b-39558322dbc4.apps.pcfdemo.net"></input><br/>
+      data: <textarea id="tradeData" rows="2" cols="80">{"id": "Tom", "action": "A"}</textarea>
+      <button id="post" onclick="javascript:postTrade()">POST</button> 
+      message: <text id="tradeResult"></text>
+   
+         
+   </body>
+</html>
